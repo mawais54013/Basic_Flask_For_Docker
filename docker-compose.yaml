@@ -1,0 +1,25 @@
+version: "3"
+services:
+  flask_app:
+    build: ./
+    ports:
+      - "10000:5000"
+    environment:
+      - DD_AGENT_HOST=datadog
+      - DD_TRACE_AGENT_PORT=8126
+  datadog:
+    links: 
+      - flask_app
+    image: "gcr.io/datadoghq/agent:latest"
+    env_file:
+      - ~/sandbox.docker.env
+    environment:
+     - DD_SITE=datadoghq.com
+     - DD_APM_ENABLED=true
+     - DD_APM_NON_LOCAL_TRAFFIC=true
+     - DD_SERVICE=flask_app_1
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     - /proc/:/host/proc/:ro
+     - /sys/fs/cgroup:/host/sys/fs/cgroup:ro
+
